@@ -18,15 +18,15 @@ jobs:
       - name: Check for file changes
         id: file_changes
         run: |
-          if [[ $(git diff --name-only ${{ github.event.before }} ${{ github.event.after }}) == ${GITHUB_REPOSITORY}+"/prod/api.yml"* ]]; then
-            echo "name_changed=true" >> "$GITHUB_ENV"
+          if [[ $(git diff --name-only ${{ github.event.before }} ${{ github.event.after }}) == "prod/api.yml" ]]; then
+            echo "api_changed=true" >> "$GITHUB_ENV"
           else
-            echo "name_changed=false" >> "$GITHUB_ENV"
+            echo "api_changed=false" >> "$GITHUB_ENV"
           fi
 
       - name: Determine version
         id: determine_version
-        if: env.name_changed == 'true'
+        if: env.api_changed == 'true'
         run: |
           git fetch --depth=1 origin "+refs/tags/*:refs/tags/*"
           latest_tag=$(git describe --abbrev=0 --tags)
@@ -40,7 +40,7 @@ jobs:
           echo "version=$(semver bump $release_type $latest_tag)" >> "$GITHUB_ENV"
 
       - name: Create release
-        if: env.name_changed == 'true'
+        if: env.api_changed == 'true'
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
