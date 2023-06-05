@@ -37,17 +37,10 @@ jobs:
           elif echo "$commit_messages" | grep -E "(^feat)"; then
             release_type="major"
           fi
-<<<<<<< HEAD
-          echo "version=$(semver bump $release_type $latest_tag)" >> "$GITHUB_ENV"
-
-      - name: Create release
-        if: env.api_changed == 'true'
-=======
           echo "::set-output name=version::$(semver bump $release_type $latest_tag)"
 
       - name: Create release
         if: steps.file_changes.outputs.changed == 'true'
->>>>>>> d795131 (Create main.yml)
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
@@ -57,8 +50,8 @@ jobs:
               -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
               https://api.github.com/repos/$repo/releases \
               -d '{
-                "tag_name": "${{ env.version }}",
-                "name": "Release ${{ env.version }}",
+                "tag_name": "${{ steps.determine_version.outputs.version }}",
+                "name": "Release ${{ steps.determine_version.outputs.version }}",
                 "body": "Auto-generated release based on changes in the current repository.",
                 "draft": false,
                 "prerelease": false
