@@ -14,7 +14,8 @@ jobs:
         uses: actions/checkout@v3
         with:
           fetch-depth: 3
-
+      - name: Install semver
+        run: npm install --global semver
       - name: Check for file changes
         id: file_changes
         run: |
