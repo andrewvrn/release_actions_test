@@ -31,7 +31,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           for repo in andrewvrn/release_actions_test_api andrewvrn/release_actions_test_app andrewvrn/release_actions_test_occ andrewvrn/release_actions_test_dli; do
-            git fetch repo --depth=1 origin "+refs/tags/*:refs/tags/*"
+            git fetch --depth=1 origin "+refs/tags/*:refs/tags/*"
             latest_tag=$(git describe --always --abbrev=0 --tags)
             commit_messages=$(git log --pretty=format:"%s" ${latest_tag}..HEAD)
             release_notes=$(echo "$commit_messages" | awk '{print "- " $0}')
