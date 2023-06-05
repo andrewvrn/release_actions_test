@@ -17,14 +17,14 @@ jobs:
         id: file_changes
         run: |
           if [[ $(git diff --name-only ${{ github.event.before }} ${{ github.event.after }}) == ${GITHUB_REPOSITORY}+"/prod/api.yml"* ]]; then
-            echo "::set-output name=changed::true"
+            echo "name_changed=true" >> "$GITHUB_ENV"
           else
-            echo "::set-output name=changed::false"
+            echo "name_changed=false" >> "$GITHUB_ENV"
           fi
 
       - name: Determine version
         id: determine_version
-        if: steps.file_changes.outputs.changed == 'true'
+        if: env.name_changed == 'true'
         run: |
           git fetch --depth=1 origin "+refs/tags/*:refs/tags/*"
           latest_tag=$(git describe --abbrev=0 --tags)
@@ -35,10 +35,10 @@ jobs:
           elif echo "$commit_messages" | grep -E "(^feat)"; then
             release_type="major"
           fi
-          echo "::set-output name=version::$(semver bump $release_type $latest_tag)"
+          echo "version=$(semver bump $release_type $latest_tag)" >> "$GITHUB_ENV"
 
       - name: Create release
-        if: steps.file_changes.outputs.changed == 'true'
+        if: env.name_changed == 'true'
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
@@ -48,8 +48,8 @@ jobs:
               -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
               https://api.github.com/repos/$repo/releases \
               -d '{
-                "tag_name": "${{ steps.determine_version.outputs.version }}",
-                "name": "Release ${{ steps.determine_version.outputs.version }}",
+                "tag_name": "${{ env.version }}",
+                "name": "Release ${{ env.version }}",
                 "body": "Auto-generated release based on changes in the current repository.",
                 "draft": false,
                 "prerelease": false
