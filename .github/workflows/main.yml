@@ -24,14 +24,10 @@ jobs:
           else
             echo "api_changed=false" >> "$GITHUB_ENV"
           fi
-
-      - name: Create release
-        if: env.api_changed == 'true'
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Determine version
+        id: determine_version
+        if: steps.file_changes.outputs.changed == 'true'
         run: |
-          git config --global user.name "${{ github.actor }}"
-          git config --global user.email "${{ github.actor }}@users.noreply.github.com"
           git fetch https://github.com/andrewvrn/release_actions_test_api --depth=1 "+refs/tags/*:refs/tags/*"
           latest_tag=$(git describe --always --abbrev=0 --tags)
           commit_messages=$(git log --pretty=format:"%s" ${latest_tag}..HEAD)
@@ -42,15 +38,25 @@ jobs:
           elif echo "$commit_messages" | grep -E "(^feat)"; then
             release_type="major"
           fi
-            echo "version=$(semver bump $release_type $latest_tag)" >> $GITHUB_OUTPUT
+          echo "version=$(semver bump $release_type $latest_tag)" >> $GITHUB_OUTPUT
+          echo "release_notes=$(echo "$commit_messages" | awk '{print "- " $0}')" >> $GITHUB_OUTPUT
+
+      - name: Create release
+        if: env.api_changed == 'true'
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          git config --global user.name "${{ github.actor }}"
+          git config --global user.email "${{ github.actor }}@users.noreply.github.com"
+          
           curl -X POST \
             -H "Accept: application/vnd.github.v3+json" \
             -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
             https://api.github.com/repos/andrewvrn/release_actions_test_api/releases \
               -d '{
-                "tag_name": "$version",
-                "name": "Release $version",
-                "body": "$release_notes",
+                "tag_name": "${{ steps.determine_version.outputs.version }}",
+                "name": "Release ${{ steps.determine_version.outputs.version }}",
+                "body": "${{ steps.determine_version.outputs.release_notes }}",
                 "draft": false,
                 "prerelease": false
               }'
