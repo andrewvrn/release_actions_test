@@ -41,8 +41,7 @@ jobs:
             elif echo "$commit_messages" | grep -E "(^feat)"; then
               release_type="major"
             fi
-            version=$(semver bump $release_type $latest_tag)
-            echo "$version"
+              echo "version=$(semver bump $release_type $latest_tag)" >> $GITHUB_OUTPUT
             curl -X POST \
               -H "Accept: application/vnd.github.v3+json" \
               -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
