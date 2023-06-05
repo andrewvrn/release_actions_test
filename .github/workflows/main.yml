@@ -32,7 +32,7 @@ jobs:
         run: |
           git config --global user.name "${{ github.actor }}"
           git config --global user.email "${{ github.actor }}@users.noreply.github.com"
-          git fetch andrewvrn/release_actions_test_api --depth=1 origin "+refs/tags/*:refs/tags/*"
+          git fetch https://github.com/andrewvrn/release_actions_test_api --depth=1 origin "+refs/tags/*:refs/tags/*"
           latest_tag=$(git describe --always --abbrev=0 --tags)
           commit_messages=$(git log --pretty=format:"%s" ${latest_tag}..HEAD)
           release_notes=$(echo "$commit_messages" | awk '{print "- " $0}')
