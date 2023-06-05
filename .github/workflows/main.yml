@@ -16,7 +16,7 @@ jobs:
       - name: Check for file changes
         id: file_changes
         run: |
-          if [[ $(git diff --name-only ${{ github.event.before }} ${{ github.event.after }}) == "https://github.com/andrewvrn/release_actions_test/prod/api.yml"* ]]; then
+          if [[ $(git diff --name-only ${{ github.event.before }} ${{ github.event.after }}) == ${GITHUB_REPOSITORY}+"/prod/api.yml"* ]]; then
             echo "name_changed=true" >> "$GITHUB_ENV"
           else
             echo "name_changed=false" >> "$GITHUB_ENV"
