@@ -30,27 +30,55 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          for repo in andrewvrn/release_actions_test_api andrewvrn/release_actions_test_app andrewvrn/release_actions_test_occ andrewvrn/release_actions_test_dli; do
-            git fetch --depth=1 origin "+refs/tags/*:refs/tags/*"
-            latest_tag=$(git describe --always --abbrev=0 --tags)
-            commit_messages=$(git log --pretty=format:"%s" ${latest_tag}..HEAD)
-            release_notes=$(echo "$commit_messages" | awk '{print "- " $0}')
-            release_type="minor"
-            if echo "$commit_messages" | grep -E "(^fix|^chore)"; then
-              release_type="patch"
-            elif echo "$commit_messages" | grep -E "(^feat)"; then
-              release_type="major"
-            fi
-              echo "version=$(semver bump $release_type $latest_tag)" >> $GITHUB_OUTPUT
-            curl -X POST \
-              -H "Accept: application/vnd.github.v3+json" \
-              -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
-              https://api.github.com/repos/$repo/releases \
+          git fetch andrewvrn/release_actions_test_api --depth=1 origin "+refs/tags/*:refs/tags/*"
+          latest_tag=$(git describe --always --abbrev=0 --tags)
+          commit_messages=$(git log --pretty=format:"%s" ${latest_tag}..HEAD)
+          release_notes=$(echo "$commit_messages" | awk '{print "- " $0}')
+          release_type="minor"
+          if echo "$commit_messages" | grep -E "(^fix|^chore)"; then
+            release_type="patch"
+          elif echo "$commit_messages" | grep -E "(^feat)"; then
+            release_type="major"
+          fi
+            echo "version=$(semver bump $release_type $latest_tag)" >> $GITHUB_OUTPUT
+          curl -X POST \
+            -H "Accept: application/vnd.github.v3+json" \
+            -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
+            https://api.github.com/repos/andrewvrn/release_actions_test_api/releases \
               -d '{
                 "tag_name": "$version",
                 "name": "Release $version",
-                "body": "Auto-generated release based on changes in the current repository.",
+                "body": "$release_notes",
                 "draft": false,
                 "prerelease": false
               }'
-          done
+
+#      - name: Create release
+#        if: env.api_changed == 'true'
+#        env:
+#          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+#        run: |
+#          for repo in andrewvrn/release_actions_test_api andrewvrn/release_actions_test_app andrewvrn/release_actions_test_occ andrewvrn/release_actions_test_dli; do
+#            git fetch --depth=1 origin "+refs/tags/*:refs/tags/*"
+#            latest_tag=$(git describe --always --abbrev=0 --tags)
+#            commit_messages=$(git log --pretty=format:"%s" ${latest_tag}..HEAD)
+#            release_notes=$(echo "$commit_messages" | awk '{print "- " $0}')
+#            release_type="minor"
+#            if echo "$commit_messages" | grep -E "(^fix|^chore)"; then
+#              release_type="patch"
+#            elif echo "$commit_messages" | grep -E "(^feat)"; then
+#              release_type="major"
+#            fi
+#              echo "version=$(semver bump $release_type $latest_tag)" >> $GITHUB_OUTPUT
+#            curl -X POST \
+#              -H "Accept: application/vnd.github.v3+json" \
+#              -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
+#              https://api.github.com/repos/$repo/releases \
+#              -d '{
+#                "tag_name": "$version",
+#                "name": "Release $version",
+#                "body": "Auto-generated release based on changes in the current repository.",
+#                "draft": false,
+#                "prerelease": false
+#              }'
+#          done
