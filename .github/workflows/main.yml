@@ -29,7 +29,7 @@ jobs:
         if: env.api_changed == 'true'
         run: |
           git fetch --depth=1 origin "+refs/tags/*:refs/tags/*"
-          latest_tag=$(git describe --abbrev=0 --tags)
+          latest_tag=$(git describe --always --abbrev=0 --tags)
           commit_messages=$(git log --pretty=format:"%s" ${latest_tag}..HEAD)
           release_type="minor"
           if echo "$commit_messages" | grep -E "(^fix|^chore)"; then
