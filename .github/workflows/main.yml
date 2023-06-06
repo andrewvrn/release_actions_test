@@ -29,7 +29,7 @@ jobs:
         id: determine_version
         if: steps.file_changes.outputs.api_changed == 'true'
         run: |
-          git fetch https://github.com/andrewvrn/release_actions_test_api --depth=1 "+refs/tags/*:refs/tags/*"
+          git fetch https://github.com/andrewvrn/release_actions_test_api origin --depth=1 "+refs/tags/*:refs/tags/*"
           latest_tag=$(git describe --always --abbrev=0 --tags)
           commit_messages=$(git log --pretty=format:"%s" ${latest_tag}..HEAD)
           release_notes=$(echo "$commit_messages" | awk '{print "- " $0}')
