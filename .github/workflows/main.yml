@@ -46,7 +46,7 @@ jobs:
           elif echo "$commit_messages" | grep -E "(^feat)"; then
           release_type="major"
           fi
-          echo "version=$(semver bump $release_type $latest_tag)" >> $GITHUB_OUTPUT
+          echo "version=$(semver -i $release_type $latest_tag)" >> $GITHUB_OUTPUT
           echo "release_notes=$(echo "$commit_messages" | awk '{print "- " $0}')" >> $GITHUB_OUTPUT
 
       - name: Create release
