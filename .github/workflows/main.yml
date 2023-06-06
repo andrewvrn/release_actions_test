@@ -11,7 +11,7 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v2
         with:
           fetch-depth: 3
       - name: Check for file changes
@@ -24,7 +24,9 @@ jobs:
             echo "api_changed=false" >> $GITHUB_OUTPUT
           fi
 
-      - uses: AutoModality/action-clean@v1
+      - name: Clean workspace
+        run: |
+          bin/rm /github/workspace -rf
       - name: Set up Node.js
         uses: actions/setup-node@v2
         if: steps.file_changes.outputs.api_changed == 'true'
