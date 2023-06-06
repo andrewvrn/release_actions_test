@@ -34,7 +34,6 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v3
         with:
-          name: andrewvrn/release_actions_test_api
           repository: andrewvrn/release_actions_test_api
       - name: Determine version
         id: determine_version
