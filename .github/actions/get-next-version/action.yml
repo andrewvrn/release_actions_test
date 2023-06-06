@@ -8,6 +8,7 @@ runs:
   steps:
     - name: Set up Node.js
       uses: actions/setup-node@v2
+      shell: bash
       with:
         node-version: '14'
     - name: Install semver
@@ -15,10 +16,12 @@ runs:
 
     - name: Checkout repository
       uses: actions/checkout@v3
+      shell: bash
       with:
         repository: ${{ inputs.repository }}
     - name: Determine version
       id: determine_version
+      shell: bash
       run: |
         git fetch --depth=1 origin "+refs/tags/*:refs/tags/*"
         latest_tag=$(git describe --abbrev=0 --tags)
