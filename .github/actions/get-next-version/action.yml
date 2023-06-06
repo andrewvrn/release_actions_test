@@ -8,15 +8,14 @@ runs:
   steps:
     - name: Set up Node.js
       uses: actions/setup-node@v2
-      shell: bash
       with:
         node-version: '14'
     - name: Install semver
       run: npm install --global semver
+      shell: bash
 
     - name: Checkout repository
       uses: actions/checkout@v3
-      shell: bash
       with:
         repository: ${{ inputs.repository }}
     - name: Determine version
