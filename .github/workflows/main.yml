@@ -11,7 +11,7 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
         with:
           fetch-depth: 3
       - name: Check for file changes
@@ -31,14 +31,13 @@ jobs:
       - name: Install semver
         run: npm install --global semver
         if: steps.file_changes.outputs.api_changed == 'true'
-      - name: Checkout repository
-        uses: actions/checkout@v3
-        if: steps.file_changes.outputs.api_changed == 'true'
-        with:
-          repository: andrewvrn/release_actions_test_api
       - name: Determine version
         id: determine_version
         if: steps.file_changes.outputs.api_changed == 'true'
+        uses: actions/checkout@v3
+        with:
+          repository:
+            andrewvrn/release_actions_test_api
         run: |
           git fetch --depth=1 origin "+refs/tags/*:refs/tags/*"
           latest_tag=$(git describe --abbrev=0 --tags)
