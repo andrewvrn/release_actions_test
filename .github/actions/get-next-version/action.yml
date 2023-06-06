@@ -1,0 +1,33 @@
+name: 'Get the new version by a Tag'
+inputs:
+  repository:
+    required: true
+
+runs:
+  using: 'composite'
+  steps:
+    - name: Set up Node.js
+      uses: actions/setup-node@v2
+      with:
+        node-version: '14'
+    - name: Install semver
+      run: npm install --global semver
+
+    - name: Checkout repository
+      uses: actions/checkout@v3
+      with:
+        repository: ${{ inputs.repository }}
+    - name: Determine version
+      id: determine_version
+      run: |
+        git fetch --depth=1 origin "+refs/tags/*:refs/tags/*"
+        latest_tag=$(git describe --abbrev=0 --tags)
+        commit_messages=$(git log --pretty=format:"%s" ${latest_tag}..HEAD)
+        release_type="minor"
+        if echo "$commit_messages" | grep -E "(^fix|^chore)"; then
+        release_type="patch"
+        elif echo "$commit_messages" | grep -E "(^feat)"; then
+        release_type="major"
+        fi
+        echo "version=$(semver -i $release_type $latest_tag)" >> $GITHUB_OUTPUT
+        echo "release_notes=$(echo "$commit_messages" | awk '{print "- " $0}')" >> $GITHUB_OUTPUT
