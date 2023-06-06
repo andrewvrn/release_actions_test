@@ -23,9 +23,6 @@ jobs:
             echo "api_changed=false" >> $GITHUB_OUTPUT
           fi
 
-      - name: Clean workspace
-        run: |
-          bin/rm /github/workspace -rf
       - name: Set up Node.js
         uses: actions/setup-node@v2
         if: steps.file_changes.outputs.api_changed == 'true'
