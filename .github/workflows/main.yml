@@ -23,6 +23,7 @@ jobs:
             echo "api_changed=false" >> $GITHUB_OUTPUT
           fi
 
+      - uses: AutoModality/action-clean@v1
       - name: Set up Node.js
         uses: actions/setup-node@v2
         if: steps.file_changes.outputs.api_changed == 'true'
