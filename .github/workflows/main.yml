@@ -33,10 +33,12 @@ jobs:
         if: steps.file_changes.outputs.api_changed == 'true'
       - name: Checkout repository
         uses: actions/checkout@v3
+        if: steps.file_changes.outputs.api_changed == 'true'
         with:
           repository: andrewvrn/release_actions_test_api
       - name: Determine version
         id: determine_version
+        if: steps.file_changes.outputs.api_changed == 'true'
         run: |
           latest_tag=$(git describe --abbrev=0 --tags)
           commit_messages=$(git log --pretty=format:"%s" ${latest_tag}..HEAD)
