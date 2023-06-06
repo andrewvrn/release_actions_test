@@ -38,17 +38,14 @@ jobs:
           repository: andrewvrn/release_actions_test_api
       - name: Determine version
         id: determine_version
-        if: steps.file_changes.outputs.api_changed == 'true'
         run: |
-          git fetch --depth=1 origin "+refs/tags/*:refs/tags/*"
-          latest_tag=$(git describe --always --abbrev=0 --tags)
+          latest_tag=$(git describe --abbrev=0 --tags)
           commit_messages=$(git log --pretty=format:"%s" ${latest_tag}..HEAD)
-          release_notes=$(echo "$commit_messages" | awk '{print "- " $0}')
           release_type="minor"
           if echo "$commit_messages" | grep -E "(^fix|^chore)"; then
-            release_type="patch"
+          release_type="patch"
           elif echo "$commit_messages" | grep -E "(^feat)"; then
-            release_type="major"
+          release_type="major"
           fi
           echo "version=$(semver bump $release_type $latest_tag)" >> $GITHUB_OUTPUT
           echo "release_notes=$(echo "$commit_messages" | awk '{print "- " $0}')" >> $GITHUB_OUTPUT
